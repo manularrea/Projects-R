@@ -1,0 +1,470 @@
+---
+title: 'Entrega 1 de R: Ejercicio 3'
+output:
+  pdf_document: default
+  html_document: default
+date: "2023-12-10"
+---
+
+**Nombre:** Manuela
+
+**Apellidos:** Larrea Gómez
+
+## Requerimientos del sistema
+
+-   Versión de R: 4.3.2 o superior
+
+-   Versión library readr: 2.1.4 o superior
+
+-   Versión library tidyr: 1.3.0 o superior
+
+-   Versión library dplyr: 1.1.4 o superior
+
+-   Versión library ggplot2: 3.4.4 o superior
+
+-   Versión library gridExtra: 4.3.0 o superior
+
+-   Versión library VIM: 6.2.2 o superior
+
+# **¿Cuál es el Pokémon con el que tengo más probabilidades de ganar?**
+
+La franquicia de Pokémon ha tenido una creciente evolución desde que inició en el año 1996 con un total de 151 Pokémon en la primera generación, pasando a 251 en la segunda generación lanzada en el 2000, es decir, un incremento de 100 Pokémon. Este crecimiento no se ha detenido y, a la fecha, en su octava generación, expuesta al público en el 2019, existe un total de 905 Pokémon.
+
+Lo anterior supone un reto único para los adeptos o fanáticos del juego, dado que un volumen tan grade de criaturas exige una memorización de cada uno de ellos. Sin embargo, un solo Pokémon conlleva ciertas características claves que lo convierten en una pieza clave al momento de llevar una batalla, entre ellas, sus 10 características principales.
+
+El tipo de Pokémon es un atributo elemental que determina las fortalezas y debilidades de cada Pokémon y sus movimientos. En ese sentido, los Pokémon están categorizados en diferentes tipos (Tipo Bicho, Dragón, Eléctrico, Hada, Lucha, Fuego, Volador, Fantasma, Planta, Tierra, Hielo, Normal, Veneno, Psíquico, Roca, Acero y Agua). Estos diferentes tipos generan ventajas o desventajas dependiendo del tipo del contrincante. Cada Pokémon usa movimientos para reducir el HP de su oponente a cero, momento en el que el Pokémon se desmaya y no puede luchar. Los Pokémon reciben el doble de daño de los movimientos de ataque de los tipos a los que son débiles y la mitad del daño de los movimientos que resisten.
+
+Todos los Pokémon tienen seis estadísticas que afectan su desempeño en la batalla. Estos son HP, Ataque, Defensa, Ataque Especial, Defensa Especial y Velocidad. Estas estadísticas se pueden modificar temporalmente durante la batalla mediante habilidades, elementos y movimientos.
+
+### 1. Comprender el problema y establecer objetivos
+
+Por lo mencionado en el apartado anterior, es necesario brindarle información clave al jugador, que le permita avanzar y obtener mejores niveles de experiencia rápidamente, de allí, que es importante determinar si las características físicas (peso y altura) de un Pokémon son parámetros claves, es decir, si estas condicionan sus estadísticas base (HP, ataque, defensa, ataque especial, etc).
+
+También es necesario determinar qué clasificador podría identificar la posibilidad de que un Pokémon logre convertirse en legendario, dado que le brinda la oportunidad al jugador de enfocarse en ciertos Pokémon con alto potencial de desarrollo. De igual forma, se puede lograr un mayor avance, determinando una relación entre los tipos de Pokémon y características base, de esta forma un jugador evita enfocarse en Pokémon que exigen un mayor tiempo para alcanzar un desarrollo razonable u óptimo de este.
+
+Finalmente, el obtener un análisis de los datos anteriores logrará, en el jugador, la capacidad de formar equipos de Pokémon que respondan a las exigencias de la esfera competitiva, dándole la oportunidad ocupar los primeros puestos en cuanto a crecimiento y experiencia en el juego
+
+#### 1.1 Objetivos
+
+Este proyecto tiene como objetivo responder las siguientes preguntas:
+
+1.  ¿Cómo se relaciona la altura y el peso de un Pokémon con sus características básicas?
+
+2.  ¿Qué tipo de Pokémon es el más fuerte en general? ¿Cuál es el más débil?
+
+3.  ¿Qué tipo de Pokémon es más probable que sea un Pokémon legendario?
+
+4.  ¿Qué factores influyen en el aumento de la experiencia y los pasos del huevo de cada especie de Pokémon? ¿Están estas cantidades correlacionadas?
+
+### 2. Set de datos objetivos
+
+El dataset utilizado fue obtenido de la siguiente dirección: <https://www.kaggle.com/datasets/rounakbanik/pokemon>
+
+#### 2.1 Datacard
+
+-   name: El nombre en inglés del Pokémon
+
+-   japanese_name: El nombre japonés original del Pokémon.
+
+-   pokedex_number: El número de entrada del Pokémon en la Pokedex Nacional.
+
+-   percent_male: El porcentaje de especies que son machos. En blanco si el Pokémon no tiene género.
+
+-   type1: El tipo primario de Pokémon
+
+-   type2: El tipo secundario de Pokémon
+
+-   clasification: La clasificación de los Pokémon según lo descrito por la Pokedex del Sol y la Luna.
+
+-   height_m: Altura del Pokémon en metros
+
+-   Weight_kg: El peso del Pokémon en kilogramos.
+
+-   capture_rate: Tasa de captura de Pokémon
+
+-   base_egg_steps: el número de pasos necesarios para incubar un huevo de Pokémon.
+
+-   abilities: una lista detallada de habilidades que el Pokémon es capaz de tener.
+
+-   experience_growth: La experiencia de crecimiento de Pokémon
+
+-   base_happiness: Felicidad base del Pokémon
+
+-   Against\_?: Dieciocho características que denotan la cantidad de daño recibido contra un ataque de un tipo particular.
+
+-   hp: El HP base del Pokémon
+
+-   atack: El Ataque Base de los Pokémon
+
+-   defense: La Defensa Base de los Pokémon
+
+-   sp_attack: El ataque especial base de los Pokémon
+
+-   sp_defense: La defensa especial base de los Pokémon
+
+-   speed: La velocidad base del Pokémon
+
+-   generation: La generación numerada en la que se introdujo el Pokémon por primera vez.
+
+-   is_legendary: Indica si el Pokémon es legendario.
+
+#### 2.2 Instalación de librerías
+
+```{r message=FALSE, warning=FALSE}
+
+library(readr)
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+library(gridExtra)
+library(VIM)
+
+```
+
+#### 2.3 Importación de los datos
+
+```{r}
+data <- read_csv("./dat/pokemon.csv")
+head(data, 18)
+```
+
+### 3. Estadísticas descriptivas preliminares
+
+Dimensiones del dataset
+
+```{r}
+dim(data)
+```
+
+Tipos de variables
+
+```{r}
+str(data)
+```
+
+```{r}
+summary(data)
+```
+
+### 4. Preprocesamiento y Limpieza de los datos
+
+Dado que la variable "abilities" no ofrece información valiosa para el análisis planteado en el objetivo del proyecto, debido a que es únicamente un listado de posibles movimientos de un pokemon, más no describe los movimientos que tiene actualmente, ni describe cual es el impacto o poder de dichos movimientos. Por esto, se opta por eliminarla.
+
+La variable percentage_male corresponde a un atributo sin interés para los objetivos del proyecto, ya que las características físicas a analizar y/o correlacionar serán el peso y la altura. Por esto, se opta por eliminarla.
+
+Se renombra el dataframe data a df.
+
+```{r}
+# Reducción tamaño del dataframe: Número de columnas
+df <- data[, !(names(data) %in% c("percentage_male", "abilities"))]
+
+```
+
+Existencia de NA's
+
+```{r}
+any(is.na(df))
+```
+
+Cantidad de NA's
+
+```{r}
+sum(is.na(df))
+```
+
+Ubicación de los NA's
+
+```{r}
+colSums(is.na(df))
+
+```
+
+Los NA's se encuentran en las variables: type2, height_m, weight_kg.
+
+Análisis de correlación entre las variables con valores NA's:
+
+```{r}
+df_missing_data <- df[c('height_m', 'weight_kg', 'type2')]
+cor(is.na(df_missing_data))
+```
+
+Logra evidenciarse que hay una correlación directa y proporcional entre las variables height_m, weight_kg.
+
+Resulta necesario seguir explorar, con el fin de verificar, la distribución de los valores existentes en una variable y la otra.
+
+```{r}
+# Distribución de NA's gráficamente
+cols_missing_val <- names(df)[apply(df, 2, function(x) any(is.na(x)))]
+
+aggr(df, col=c('navyblue','yellow'),
+     numbers=TRUE, sortVars=TRUE,
+     labels=names(cols_missing_val), cex.axis=.3,
+     gap=3, ylab=c("Missing data","Pattern"))
+```
+
+Se confirma que las observaciones con NA's en la variable height_m, también es NA's en la variable weight_kg.
+
+#### 4.1 Limpieza de los datos
+
+-   Para la variable: **type2**
+
+```{r}
+#Verificación de unicidad: Inconsistencias y/o duplicados
+unique(df$type2)
+```
+
+Logra evidenciarse que la variable tiene valores nulos (como observado en el apartado anterior) y elementos de tipo String que corresponden al tipo secundario de cada especie de Pokémon.
+
+En este sentido, resulta lógico la existencia de valores nulos, ya que una especie de pokémon no necesariamente tiene tipo secundario.
+
+```{r}
+# Imputación de NA's
+df$type2[is.na(df$type2)] <- 'HHH'
+unique(df$type2)
+```
+
+Se opta por imputar la cadena 'HHH' (un string que no está presente en la columna) para los valores nulos.
+
+-   Para las variables: **weight_kg y height_m**
+
+Dado que para los objetivos de este proyecto resulta completamente necesario tener datos de calidad para estas dos variables en específico, no resulta prudente imputar con valores aleatorios o eliminar observaciones con valores nulos. En este caso, se realiza una búsqueda adicional de información que permita completar los valores faltantes.
+
+Para esto, se utiliza el siguiente dataset: <https://www.kaggle.com/datasets/mariotormo/complete-pokemon-dataset-updated-090420>
+
+#### 4.1.1 Importación del segundo dataset
+
+```{r}
+datahelper <- read_csv("./dat/pokedex_(Update_05.20).csv")
+head(datahelper, 5)
+```
+
+```{r}
+# Se seleccionan las variables de interés
+dfhelper <- datahelper[, c("height_m", "weight_kg", "pokedex_number", "name")]
+```
+
+```{r}
+# Verificación de valores nulos
+any(is.na(dfhelper))
+```
+
+Con el propósito de identificar si los valores nulos del dataframe df se encuentran completos en el dataset df_helper, se procede a identificar cuales son las especies de Pokémon que no tienen datos en el peso y altura en el dataset original.
+
+```{r}
+# Filas sin datos en "height_m", "weight_kg" del dataset original
+
+dfnull <- df[rowSums(is.na(df)) > 0, ]
+dfnull <- dfnull[, c("height_m", "weight_kg", "pokedex_number", "name")]
+dfnull
+```
+
+```{r}
+# Consulta en el dfhelper por medio de la clave "name"
+dfhelper_filtered <- merge(dfhelper, dfnull, by = c("name"), all.y = T) #right join
+dfhelper_filtered
+```
+
+La información faltante en dfnull se encuentra en el dataframe dfhelper. Se procede a imputar los valores faltantes en el dataframe df.
+
+### 5. Integración e Imputación de NA's
+
+```{r}
+
+impute_missing_values <- function(df, dfnull, dfhelper) {
+  
+  #   Imputa valores faltantes en las columnas 'height_m' y 'weight_kg' de df utilizando los valores correspondientes 
+  #   de dfhelper en base al 'pokedex_number'.
+  # 
+  # Args:
+  #   df (dataframe): Un DataFrame con valores faltantes.
+  #   dfnull (dataframe): Un DataFrame que contiene los valores faltantes.
+  #   dfhelper (dataframe): Un DataFrame que contiene los valores de referencia.
+  # 
+  # Returns:
+  #   Un DataFrame con los valores faltantes imputados.
+    
+  pokedex_null <- dfnull$pokedex_number
+  for (index in 1:nrow(df)) {
+    if (df$pokedex_number[index] %in% pokedex_null) {
+      helper_row <- dfhelper[dfhelper$pokedex_number == df$pokedex_number[index], ]
+      df$height_m[index] <- helper_row$height_m[1]
+      df$weight_kg[index] <- helper_row$weight_kg[1]
+    }
+  }
+  return(df)
+}
+```
+
+```{r}
+df <- impute_missing_values(df, dfnull, dfhelper)
+```
+
+```{r}
+any(is.na(df))
+```
+
+### 6. Análisis de los datos
+
+#### 6.1 ¿Cómo se relaciona la altura y el peso de un Pokémon con sus características básicas?
+
+```{r}
+
+# Creación de un ploteo por característica, respecto al peso
+plot1 <- ggplot(df, aes(x = hp, y = weight_kg)) +
+  geom_point(color = "blue") +
+  ggtitle("HP")
+
+plot2 <- ggplot(df, aes(x = attack, y = weight_kg)) +
+  geom_point(color = "red") +
+  ggtitle("Attack")
+
+plot3 <- ggplot(df, aes(x = speed, y = weight_kg)) +
+  geom_point(color = "green") +
+  ggtitle("Speed")
+
+plot4 <- ggplot(df, aes(x = defense, y = weight_kg)) +
+  geom_point(color = "yellow") +
+  ggtitle("Defense")
+
+
+plot5 <- ggplot(df, aes(x = sp_attack, y = weight_kg)) +
+  geom_point(color = "orange") +
+  ggtitle("Special Attack")
+
+plot6 <- ggplot(df, aes(x = sp_defense, y = weight_kg)) +
+  geom_point(color = "purple") +
+  ggtitle("Special Defense")
+
+# Combinación de los plots
+combined_plot <- grid.arrange(plot1, plot2, plot3, plot4, plot5, plot6, ncol = 3)
+
+print(combined_plot)
+```
+
+```{r}
+# Creación de un ploteo por característica, respecto a la altura
+plot1 <- ggplot(df, aes(x = hp, y = height_m)) +
+  geom_point(color = "blue") +
+  ggtitle("HP")
+
+plot2 <- ggplot(df, aes(x = attack, y = height_m)) +
+  geom_point(color = "red") +
+  ggtitle("Attack")
+
+plot3 <- ggplot(df, aes(x = speed, y = height_m)) +
+  geom_point(color = "green") +
+  ggtitle("Speed")
+
+plot4 <- ggplot(df, aes(x = defense, y = height_m)) +
+  geom_point(color = "yellow") +
+  ggtitle("Defense")
+
+
+plot5 <- ggplot(df, aes(x = sp_attack, y = height_m)) +
+  geom_point(color = "orange") +
+  ggtitle("Special Attack")
+
+plot6 <- ggplot(df, aes(x = sp_defense, y = height_m)) +
+  geom_point(color = "purple") +
+  ggtitle("Special Defense")
+
+# Combinación de los plots
+combined_plot <- grid.arrange(plot1, plot2, plot3, plot4, plot5, plot6, ncol = 3)
+
+print(combined_plot)
+```
+
+En la primera Gráfica (color azul rey) bajos valores de HP están asociados con bajos valores de Weight. Hay una tendencia de los valores intermedios de HP (alrededor de 100) a estar asociados con altos valores de Weight
+
+Luego hay un descenso en los valores de HP que se asocian con bajos valores de Weight. Se observa una tendencia de que a medida que aumentan los valores en HP también aumentan los de Weight (o viceversa) pero hay una distribución aleatoria de los valores de HP cuando estos superan los 150. Los outliers o valores extremos de HP no revelan una tendencia a asociarse con un weight bajo o alto.
+
+Esas gráficas muestran que no hay tendencias en la distribución de los datos, es decir, los valores altos de una HP se asocian tanto con valores bajos como con valores altos de las otras variables Weight y Height.
+
+Para el resto de variables, el comportamiento es similar.
+
+#### 6.2 ¿Qué tipo de Pokémon es el más fuerte en general? ¿Cuál es el más débil?
+
+-   **Tipo más fuerte**
+
+```{r}
+strong_specie <- df %>%
+  group_by(type1) %>%
+  summarize(mean_base_total = mean(base_total)) %>%
+  arrange(desc(mean_base_total))
+strong_specie
+```
+
+Se concluye que el tipo de Pokémon más fuerte es el tipo dragón y el más débil es el tipo bug.
+
+-   **Pokémon más fuerte**
+
+```{r}
+strong_pokemon <- df[order(df$base_total, decreasing = TRUE), ][1:5, c("name", "base_total")]
+strong_pokemon
+```
+
+De manera individual, los Pokémon cuyas habilidades son las más fuertes son Mewtwo y Rayquaza.
+
+-   **Pokémon más débil**
+
+```{r}
+weak_pokemon <- df[order(df$base_total, decreasing = FALSE), ][1:5, c("name", "base_total")]
+weak_pokemon
+```
+
+De manera individual, los Pokémon cuyas habilidades son las más débiles son Sunkern y Azurill.
+
+#### 6.3 ¿Qué tipo de Pokémon es más probable que sea un Pokémon Legendario?
+
+```{r}
+# Probabilidad de que un Pokémon sea legendario según el tipo 1  "type1"
+legendary_counts <- table(df[df$is_legendary == 1, "type1"])
+prob_legendary <- (legendary_counts / sum(df$is_legendary == 1) * 100)
+sorted_legendary <- sort(prob_legendary, decreasing = TRUE)
+
+print(sorted_legendary)
+
+```
+
+El tipo de Pokémon Psychic es el más probable de que sea legendario, con una probabilidad de 24.3%
+
+```{r}
+legendary_counts_2 <- table(df[df$is_legendary == 1, 'type2'])
+
+# Exclude a specific type
+exclude_type <- 'HHH'
+legendary_counts_filtered <- legendary_counts_2[names(legendary_counts_2) != exclude_type]
+prob_legendary_2 <- legendary_counts_filtered / sum(df$is_legendary == 1) * 100
+
+sorted_legendary_2 <- sort(prob_legendary_2, decreasing = TRUE)
+# Print the percentage of each type
+print(sorted_legendary_2)
+
+```
+
+El tipo secundario de Pokémon Flying es el más probable que sea legendario, con una probabilidad de 14.3%
+
+#### 6.4 ¿Qué relación hay entre la Experiencia y los Pasos del Huevo?
+
+```{r}
+df_experiencia_vs_pasos <- df %>%
+  select(experience_growth, base_egg_steps)
+
+correlation_matrix <- cor(df_experiencia_vs_pasos)
+correlation_matrix
+
+```
+
+El coeficiente de correlación entre las variables experience_growth y base_egg_steps tiene un valor de 0.37, lo que indica una correlación positiva débil. En este sentido, es posible concluir que la cantidad necesaria de pasos para abrir un huevo, no influye significativamente en el crecimiento de la experiencia.
+
+### 7. Recomendaciones y decisiones
+
+1.  Los Pokémon que ofrecen una mayor capacidad ofensiva en batalla son los tipo dragón y steel.
+
+2.  Evitar utilizar los Pokémon tipo bug para enfrentar batallas, dado que ofrecen baja capacidad ofensiva.
+
+3.  Utilizar los Pokémon Rayquaza, Mewtwo, Groudon y Kyogre representa una ventaja en relación con el ataque, defensa y puntos de vida.
+
+4.  Los Pokémon más fuertes, Rayquaza y Mewtwo, son, a su vez, Pokémon legendarios.
+
+5.  La búsqueda de un Pokémon lengendario tendrá mayor probabilidad de éxito en tanto se busque, para tipo 1, Pokémon Psychic, y para tipo 2, Pokémon Flying
